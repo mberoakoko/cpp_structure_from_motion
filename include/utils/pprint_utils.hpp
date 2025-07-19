@@ -14,6 +14,8 @@ namespace motion::utils {
     const std::string MAGENTA = "\033[35m";
     const std::string CYAN = "\033[36m";
     const std::string RESET = "\033[0m";
+    const std::string TURN_ON_UNDERLINE = "\033[4m";
+    const std::string TURN_OFF_UNDERLINE = "\033[24m";
 }
 
 #endif //PPRINT_UTILS_HPP
