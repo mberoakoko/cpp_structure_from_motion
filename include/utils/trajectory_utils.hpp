@@ -165,15 +165,53 @@ namespace motion::utils {
                 glEnd();
             }
         };
+        while (pangolin::ShouldQuit() == false) {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            d_cam.Activate(s_cam);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glLineWidth(2);
 
-        if (with_poses) {
-            draw_poses(trajectory_1);
-            draw_poses(trajectory_2);
+            if (with_poses) {
+                draw_poses(trajectory_1);
+                draw_poses(trajectory_2);
+            }
+
+
+            draw_lines(trajectory_1);
+            draw_lines(trajectory_2);
+
+            pangolin::FinishFrame();
+            usleep(SLEEP_TIME);
+        }
+    }
+
+    struct TrajectoryPair {
+        PosesVector trajectory_1;
+        PosesVector trajectory_2;
+
+        static auto assert_is_same_size(const PosesVector& trajectory_1, const PosesVector& trajectory_2) -> void {
+            assert(trajectory_1.size() == trajectory_2.size());
         }
 
-        draw_lines(trajectory_1);
-        draw_lines(trajectory_2);
+        static auto assert_is_not_empty(const PosesVector& trajectory_1, const PosesVector& trajectory_2) -> void {
+            assert(not trajectory_1.empty() == trajectory_2.empty());
+        }
+        auto assert_is_same_size() const -> const TrajectoryPair& {
+            TrajectoryPair::assert_is_same_size(trajectory_1, trajectory_2);
+            return *this;
+        }
 
+        auto assert_is_not_empty() const -> const  TrajectoryPair& {
+            TrajectoryPair::assert_is_not_empty(trajectory_1, trajectory_2);
+            return *this;
+        }
+    };
+
+    auto root_mean_square_trajectory(const TrajectoryPair& trajectory_pair) -> double {
+        auto _ = trajectory_pair.assert_is_same_size()
+                                                .assert_is_not_empty();
+
+        return  0.0;
 
     }
 
