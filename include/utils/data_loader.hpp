@@ -149,6 +149,10 @@ namespace motion::utils {
     namespace dataset {
         constexpr std::string DEFAULT_RESOURCE_DIR = "resources/image_data";
         namespace fs = std::filesystem;
+
+        /**
+         * Image dataset class
+         */
         class ImagePathDataSet final : public dataloader::Dataset {
             std::string root_dir_;
             std::string sub_dir_;
