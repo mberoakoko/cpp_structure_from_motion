@@ -6,6 +6,8 @@
 #define DATA_LOADER_HPP
 #include <bits/stdc++.h>
 #include <opencv2/core.hpp>
+#include <utility>
+#include <opencv2/imgcodecs.hpp>
 
 namespace motion::utils {
     namespace dataloader {
@@ -52,6 +54,11 @@ namespace motion::utils {
 
         };
 
+        /**
+         * The dataloder class provides an abstraction to iterate over batches of images
+         * @tparam SampleT template for ample type
+         * @tparam BatchT colletion template for batching type
+         */
         template<typename SampleT, typename BatchT>
         class DataLoader {
             friend DataLoaderIterator<SampleT, BatchT>;
@@ -137,11 +144,48 @@ namespace motion::utils {
                 || dataloader_ == other.dataloader_;
         }
 
-
     }
 
     namespace dataset {
+        constexpr std::string DEFAULT_RESOURCE_DIR = "resources/image_data";
+        namespace fs = std::filesystem;
+        class ImagePathDataSet final : public dataloader::Dataset {
+            std::string root_dir_;
+            std::string sub_dir_;
+            std::vector<std::string> image_paths_;
+        public:
+            ImagePathDataSet(std::string  root_dir, std::string  sub_dir)
+            : root_dir_(std::move(root_dir)), sub_dir_(std::move(sub_dir)) {
+                fs::path images_file_path = fs::path(root_dir) / sub_dir ;
+                if (fs::exists(images_file_path) and fs::is_directory(images_file_path)) {
+                    const auto filtered_view = fs::directory_iterator(images_file_path)
+                    | std::views::filter([](const auto& entry) {
+                        return fs::is_regular_file(entry.path());
+                    })
+                    | std::views::transform([](const auto& entry) {
+                        return entry.path().string();
+                    })
+                    | std::ranges::to<std::vector>();
+                    image_paths_.assign(filtered_view.begin(), filtered_view.end());
+                    std::ranges::sort(image_paths_);
+                } else {
+                    std::cerr << "Image path does not exists" << std::endl;
+                }
+                std::cout << "Initialized ImagePathsDataset with " << image_paths_.size() << " image paths." << std::endl;
+            }
 
+            auto size() -> std::size_t override {
+                return image_paths_.size();
+            }
+
+            auto get_item(std::size_t idx) -> dataloader::ImageSample override {
+                const std::string image_path = image_paths_.at(idx);
+                return {
+                    .path = image_path,
+                    .image = cv::imread(image_path, cv::IMREAD_COLOR)
+                };
+            };
+        };
     }
 }
 
