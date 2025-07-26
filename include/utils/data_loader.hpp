@@ -8,6 +8,7 @@
 #include <opencv2/core.hpp>
 #include <utility>
 #include <opencv2/imgcodecs.hpp>
+#include "pprint_utils.hpp"
 
 namespace motion::utils {
     namespace dataloader {
@@ -22,7 +23,7 @@ namespace motion::utils {
         public:
             virtual ~Dataset() = default;
             virtual auto size() -> std::size_t = 0;
-            virtual auto get_item(std::size_t idx) -> ImageSample = 0;
+            virtual auto get_item(const std::size_t idx) -> ImageSample = 0;
         };
 
 
@@ -71,11 +72,12 @@ namespace motion::utils {
 
         public:
             explicit DataLoader(std::shared_ptr<Dataset> dataset, std::size_t batch_size, bool shuffle)
-            :   dataset_(std::move(dataset)),batch_size_(batch_size), shuffle_(shuffle),
-                rng_(std::random_device{}()) {
+            :   dataset_(std::move(dataset)),
+                batch_size_(batch_size),
+                shuffle_(shuffle),
+                rng_(std::random_device{}()),
+                curr_epoch_indexes_(std::views::iota(0) | std::views::take(dataset_->size()) | std::ranges::to<std::vector<std::size_t>>()) {
 
-                curr_epoch_indexes_.reserve(dataset_->size());
-                std::ranges::copy(std::views::iota(0) | std::views::take(dataset_->size()), curr_epoch_indexes_.begin());
                 std::ranges::shuffle(curr_epoch_indexes_, rng_);
             }
 
@@ -147,7 +149,7 @@ namespace motion::utils {
     }
 
     namespace dataset {
-        constexpr std::string DEFAULT_RESOURCE_DIR = "resources/image_data";
+        const std::string DEFAULT_RESOURCE_DIR = "../resources/image_data";
         namespace fs = std::filesystem;
 
         /**
@@ -160,7 +162,7 @@ namespace motion::utils {
         public:
             ImagePathDataSet(std::string  root_dir, std::string  sub_dir)
             : root_dir_(std::move(root_dir)), sub_dir_(std::move(sub_dir)) {
-                fs::path images_file_path = fs::path(root_dir) / sub_dir ;
+                fs::path images_file_path = fs::path(root_dir_) / sub_dir_ ;
                 if (fs::exists(images_file_path) and fs::is_directory(images_file_path)) {
                     const auto filtered_view = fs::directory_iterator(images_file_path)
                     | std::views::filter([](const auto& entry) {
@@ -173,16 +175,21 @@ namespace motion::utils {
                     image_paths_.assign(filtered_view.begin(), filtered_view.end());
                     std::ranges::sort(image_paths_);
                 } else {
+                    std::cerr << utils::MAGENTA ;
                     std::cerr << "Image path does not exists" << std::endl;
+                    std::cerr << images_file_path.string() << std::endl;
+                    std::cerr << utils::RESET << std::endl;
                 }
+                std::cout << utils::GREEN ;
                 std::cout << "Initialized ImagePathsDataset with " << image_paths_.size() << " image paths." << std::endl;
+                std::cout << utils::RESET << "\n";
             }
 
             auto size() -> std::size_t override {
                 return image_paths_.size();
             }
 
-            auto get_item(std::size_t idx) -> dataloader::ImageSample override {
+            auto get_item(const std::size_t idx) -> dataloader::ImageSample override {
                 const std::string image_path = image_paths_.at(idx);
                 return {
                     .path = image_path,
@@ -191,6 +198,30 @@ namespace motion::utils {
             };
         };
     }
+
+    namespace test_dataloader {
+        inline auto test_getting_batches(std::uint16_t batch_size = 20) -> void {
+            std::string sub_dir = "einstein_1_stereo_dataset/rgb2";
+            std::shared_ptr<dataloader::Dataset> dataset = std::make_shared<utils::dataset::ImagePathDataSet>(dataset::DEFAULT_RESOURCE_DIR, sub_dir);
+            std::cout << "\n--- Iterating through DataLoader (Batch Size 3, no shuffle) ---" << std::endl;
+            // for (dataloader::DataLoader<dataloader::ImageSample, dataloader::ImageBatch> data_loader{dataset, 3, false};
+            //     const dataloader::ImageBatch& image_batch: data_loader) {
+            //     auto i = 2 + 2;
+            //     std::cout << utils::MAGENTA ;
+            //     std::cout << i << std::endl;
+            //     std::cout << utils::RESET << std::endl;
+            //     std::cout << image_batch.size() << std::endl;
+            // }
+
+            dataloader::DataLoader<dataloader::ImageSample, dataloader::ImageBatch> data_loader{dataset, batch_size, false};
+            auto first_item = *std::begin(data_loader);
+            for (const auto item : first_item) {
+                std::cout << item.path << std::endl;
+            }
+        }
+
+    }
 }
 
 #endif //DATA_LOADER_HPP
+;
