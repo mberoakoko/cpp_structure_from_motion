@@ -27,7 +27,7 @@ namespace visual_odometry::feature_extraction {
         auto extract_features() -> cv::Mat {
             detector_->detect(image_1_, keypoints_1_);
             detector_->detect(image_2_, keypoints_2_);
-
+            
             descriptor_extractor_->compute(image_1_, keypoints_1_, descriptor_1_);
             descriptor_extractor_->compute(image_2_, keypoints_2_, descriptor_2_);
             cv::Mat output_image:

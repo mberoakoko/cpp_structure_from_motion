@@ -5,8 +5,12 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_fetch_funcs")
+
 include(FetchContent)
 
+#include(FetchCeres)
+find_package(Ceres CONFIG REQUIRED)
 
 if (Sophus_FOUND)
     message(STATUS "Sophus is installed in system, chill a little bruh")
@@ -32,10 +36,24 @@ else()
     message(FATAL_ERROR "Pangolin not found!")
 endif()
 
+find_package(OpenCV REQUIRED)
+if(OpenCV_FOUND)
+    message(STATUS "\\033[31;1;4mFound OpenCV version ${OpenCV_VERSION}\\033[0m")
+    message(STATUS "    \\033[31;1;4mInclude Path ${OpenCV_INCLUDE_DIRS}n\\033[0m")
+endif ()
+
 
 add_executable(cpp_structure_from_motion main.cpp
         include/testing_out_stuff/sophus_tings.hpp
         include/utils/pprint_utils.hpp
-        include/utils/trajectory_utils.hpp)
+        include/utils/trajectory_utils.hpp
+        include/testing_out_stuff/ceres_playgroung.hpp
+        include/visual_odometry/visual_odometry_intro.hpp
+        include/utils/data_loader.hpp)
 
-target_link_libraries(cpp_structure_from_motion PUBLIC sophus pango_core pango_display pango_geometry pango_glgeometry)
+target_link_libraries(cpp_structure_from_motion
+        PUBLIC sophus pango_core pango_display pango_geometry pango_glgeometry
+        PRIVATE Ceres::ceres ${OpenCV_LIBS}
+)
+
+#target_include_directories(cpp_structure_from_motion PUBLIC ${CERES_INCLUDE_DIRS})
