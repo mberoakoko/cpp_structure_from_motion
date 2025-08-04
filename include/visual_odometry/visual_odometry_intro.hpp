@@ -101,5 +101,34 @@ namespace visual_odometry::feature_extraction {
     };
 
 
+    class PoseEstimator {
+        std::vector<cv::KeyPoint> keypoints_1_;
+        std::vector<cv::KeyPoint> keypoints_2_;
+        std::vector<cv::DMatch> matches_;
+    public:
+        struct PoseEstimations {
+            cv::Mat R;
+            cv::Mat t;
+        };
+        explicit PoseEstimator(const std::vector<cv::KeyPoint>& key_points_1, const std::vector<cv::KeyPoint>& key_points_2, const std::vector<cv::DMatch>& matches)
+            : keypoints_1_(keypoints_1_), keypoints_2_(key_points_2), matches_(matches) {
+
+        }
+
+        auto perform_pose_estimation() -> PoseEstimations {
+
+        }
+
+    private:
+        PoseEstimations poseEstimations_;
+    }
+
+    inline auto test_binary_feature_extractor() -> void {
+        const auto [image_1, image_2] = temporary_data_access::load_images_from_disk();
+        auto binary_extractor = BinaryFeatureExtractor(image_1, image_2);
+        binary_extractor.extract_features().display_match_results();
+    }
+
+
 }
 #endif //VISUAL_ODOMETRY_INTRO_HPP
