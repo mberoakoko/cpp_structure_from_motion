@@ -130,6 +130,11 @@ namespace visual_odometry::feature_extraction {
 
     };
 
+    namespace TUM_DATASET_DEFAULTS {
+        const cv::Mat CAMERA_INTRINSICS { (cv::Mat_<double>(3, 3) <<  520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1) };
+        const cv::Mat PRINCIPLE_POINT { };
+        constexpr double FOCAL_LENGTH { 521.0 };
+    }
 
     class PoseEstimator {
         std::vector<cv::KeyPoint> keypoints_1_;
