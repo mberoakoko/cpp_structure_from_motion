@@ -75,6 +75,29 @@ namespace visual_odometry::feature_extraction {
                                 {return match.distance <= std::max(2*min_elem.distance, threshold);})
                 | std::ranges::to<std::vector<cv::DMatch>>();
         }
+
+        auto display_extracted_features() const -> void {
+            cv::Mat output_image_1, output_image_2;
+            cv::drawKeypoints(image_1_, keypoints_1_, output_image_1, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+            cv::drawKeypoints(image_2_, keypoints_1_, output_image_2, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+            cv::Mat display_image;
+            cv::hconcat(output_image_1, output_image_2, display_image);
+            cv::imshow("Extracted_features", display_image);
+            cv::waitKey(0);
+            cv::destroyAllWindows();
+
+        }
+
+        auto display_match_results(const float& threshold = 30) const -> void {
+            auto good_matches = match_features(threshold);
+            cv::Mat display_image;
+            cv::drawMatches(image_1_, keypoints_1_, image_2_, keypoints_2_, good_matches, display_image);
+            cv::imshow("Matches", display_image);
+            cv::waitKey(0);
+            cv::destroyAllWindows();
+
+        }
+
     };
 
 
