@@ -196,11 +196,14 @@ namespace motion::utils {
         static auto assert_is_not_empty(const PosesVector& trajectory_1, const PosesVector& trajectory_2) -> void {
             assert(not trajectory_1.empty() == trajectory_2.empty());
         }
+
+        [[nodiscard]]
         auto assert_is_same_size() const -> const TrajectoryPair& {
             TrajectoryPair::assert_is_same_size(trajectory_1, trajectory_2);
             return *this;
         }
 
+        [[nodiscard]]
         auto assert_is_not_empty() const -> const  TrajectoryPair& {
             TrajectoryPair::assert_is_not_empty(trajectory_1, trajectory_2);
             return *this;

@@ -14,6 +14,37 @@
 
 namespace visual_odometry::feature_extraction {
 
+
+    namespace temporary_data_access {
+        const std::string IMAGE_PATH_1 {"../resources/image_data/epipolar_constraints_images/test_image_1.png"};
+        const std::string IMAGE_PATH_2 {"../resources/image_data/epipolar_constraints_images/test_image_2.png"};
+
+        struct TestImages {
+            cv::Mat image_1;
+            cv::Mat image_2;
+        };
+
+        inline auto load_images_from_disk() -> TestImages {
+            auto path_1 = std::filesystem::path(IMAGE_PATH_1);
+            auto path_2 = std::filesystem::path(IMAGE_PATH_2);
+            std::cout << (std::filesystem::exists(path_1) ? "true": "false") << std::endl;
+            std::cout << (std::filesystem::exists(path_2) ? "true": "false") << std::endl;
+            return {
+                .image_1 = cv::imread(IMAGE_PATH_1, cv::IMREAD_COLOR),
+                .image_2 = cv::imread(IMAGE_PATH_2, cv::IMREAD_COLOR)
+            };
+        }
+
+        inline auto display_size_by_side(const TestImages& test_images) -> void {
+            cv::Mat combined_image;
+            cv::vconcat(test_images.image_1, test_images.image_2, combined_image);
+            cv::imshow("Loaded Images", combined_image);
+            cv::waitKey(0);
+            cv::destroyAllWindows();
+        }
+
+    }
+
     using OptPtrFeatureExtractor = std::optional<cv::Ptr<cv::FeatureDetector>>;
 
     struct OrbTag{};
@@ -53,16 +84,15 @@ namespace visual_odometry::feature_extraction {
     public:
         explicit BinaryFeatureExtractor(cv::Mat  image_1, cv::Mat  image_2): image_1_(std::move(image_1)), image_2_(std::move(image_2)) {};
 
-        auto extract_features() -> cv::Mat {
+        auto extract_features() -> BinaryFeatureExtractor& {
             detector_->detect(image_1_, keypoints_1_);
             detector_->detect(image_2_, keypoints_2_);
             
             descriptor_extractor_->compute(image_1_, keypoints_1_, descriptor_1_);
             descriptor_extractor_->compute(image_2_, keypoints_2_, descriptor_2_);
-            cv::Mat output_image;
-            cv::drawKeypoints(image_1_, keypoints_1_, output_image, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-            return output_image;
+            return *this;
         }
+
 
         [[nodiscard]]
         auto match_features(const float& threshold = 30 ) const -> std::vector<cv::DMatch> {
