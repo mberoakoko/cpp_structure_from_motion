@@ -151,6 +151,17 @@ namespace visual_odometry::feature_extraction {
         }
 
         auto perform_pose_estimation() -> PoseEstimations {
+            auto point_pairs = matches_
+            |   std::views::transform([&](const cv::DMatch& match) {
+                return std::make_pair(
+                        keypoints_1_[match.queryIdx].pt,
+                         keypoints_2_[match.trainIdx].pt
+                         );
+            });
+            std::vector<cv::Point2d> points_1;
+            std::vector<cv::Point2d> points_2;
+            points_1.reserve(matches_.size());
+            points_2.reserve(matches_.size());
 
         }
 
