@@ -6,6 +6,7 @@
 #define VISUAL_ODOMETRY_INTRO_HPP
 #include <bits/stdc++.h>
 #include <opencv2/core/core.hpp>
+#include <opencv2/sfm/fundamental.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/highgui.hpp>
 #include <utility>
@@ -163,11 +164,16 @@ namespace visual_odometry::feature_extraction {
             points_1.reserve(matches_.size());
             points_2.reserve(matches_.size());
 
+            for (const auto& [query, train]: point_pairs) {
+                points_1.push_back(query);
+                points_2.push_back(train);
+            }
+
         }
 
     private:
         PoseEstimations poseEstimations_;
-    }
+    };
 
     inline auto test_binary_feature_extractor() -> void {
         const auto [image_1, image_2] = temporary_data_access::load_images_from_disk();

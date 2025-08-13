@@ -11,6 +11,8 @@ include(FetchContent)
 
 #include(FetchCeres)
 find_package(Ceres CONFIG REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui sfm)
+find_package(Pangolin CONFIG REQUIRED)
 
 if (Sophus_FOUND)
     message(STATUS "Sophus is installed in system, chill a little bruh")
@@ -25,7 +27,7 @@ else ()
     FetchContent_MakeAvailable(sophus)
 endif ()
 
-find_package(Pangolin CONFIG REQUIRED)
+
 
 # You can check if it was found and print its details (optional, for debugging)
 if (Pangolin_FOUND)
@@ -36,10 +38,12 @@ else()
     message(FATAL_ERROR "Pangolin not found!")
 endif()
 
-find_package(OpenCV REQUIRED)
+
 if(OpenCV_FOUND)
     message(STATUS "\\033[31;1;4mFound OpenCV version ${OpenCV_VERSION}\\033[0m")
-    message(STATUS "    \\033[31;1;4mInclude Path ${OpenCV_INCLUDE_DIRS}n\\033[0m")
+    message(STATUS "    \\033[31;1;4mInclude Path ${OpenCV_INCLUDE_DIRS}\\033[0m")
+else ()
+    message(STATUS "-------------OPENCV WAS NOT FOUND PANIC !!----------------")
 endif ()
 
 
@@ -51,9 +55,14 @@ add_executable(cpp_structure_from_motion main.cpp
         include/visual_odometry/visual_odometry_intro.hpp
         include/utils/data_loader.hpp)
 
+
+target_include_directories(cpp_structure_from_motion PUBLIC
+        ${OpenCV_INCLUDE_DIRS}
+)
+
 target_link_libraries(cpp_structure_from_motion
         PUBLIC sophus pango_core pango_display pango_geometry pango_glgeometry
-        PRIVATE Ceres::ceres ${OpenCV_LIBS}
+        PRIVATE Ceres::ceres {OpenCV_LIBS}
 )
 
 #target_include_directories(cpp_structure_from_motion PUBLIC ${CERES_INCLUDE_DIRS})
