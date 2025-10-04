@@ -10,6 +10,29 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_fetch_funcs")
 include(FetchContent)
 
 #include(FetchCeres)
+
+## This often helps trick Ceres into linking correctly.
+#if(NOT TARGET glog::glog)
+#    MESSAGE(STATUS "Glog Target not found")
+#    find_package(Glog REQUIRED) # Try to find the old-style Glog package
+#    if(TARGET glog)
+#        message(STATUS "Create the modern namespaced alias that Ceres expects")
+#        add_library(glog::glog INTERFACE IMPORTED)
+#        target_link_libraries(glog::glog INTERFACE glog)
+#        message(STATUS "You may also need to set properties to include directories etc.")
+#        message(STATUS "This can get complicated, so try the next simpler approach first.")
+#    endif()
+#endif()
+
+find_package(Glog REQUIRED)
+
+if(NOT TARGET glog::glog)
+    # This assumes that 'find_package(Glog)' or simply having the header/library
+    # installed is enough to define an existing simple target 'glog'
+    add_library(glog::glog ALIAS glog)
+endif()
+
+
 find_package(Ceres CONFIG REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui sfm)
 find_package(Pangolin CONFIG REQUIRED)
