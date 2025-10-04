@@ -168,14 +168,16 @@ namespace motion::utils {
             : root_dir_(std::move(root_dir)), sub_dir_(std::move(sub_dir)) {
                 fs::path images_file_path = fs::path(root_dir_) / sub_dir_ ;
                 if (fs::exists(images_file_path) and fs::is_directory(images_file_path)) {
-                    const auto filtered_view = fs::directory_iterator(images_file_path)
-                    | std::views::filter([](const auto& entry) {
-                        return fs::is_regular_file(entry.path());
-                    })
-                    | std::views::transform([](const auto& entry) {
-                        return entry.path().string();
-                    })
-                    | std::ranges::to<std::vector>();
+                    const auto filtered_view = std::ranges::to<std::vector>(
+                    fs::directory_iterator(images_file_path)
+                                       | std::views::filter([](const auto &entry) {
+                                           return fs::is_regular_file(entry.path());
+                                       })
+                                       | std::views::transform([](const auto &entry) {
+                                           return entry.path().string();
+                                       })
+                    );
+
                     image_paths_.assign(filtered_view.begin(), filtered_view.end());
                     std::ranges::sort(image_paths_);
                 } else {
