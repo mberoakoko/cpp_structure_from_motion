@@ -44,7 +44,7 @@ else ()
     FetchContent_Declare(
             Sophus
             GIT_REPOSITORY https://github.com/strasdat/Sophus
-            GIT_TAG 1.22.10
+            GIT_TAG 1.24.6
     )
 
     FetchContent_MakeAvailable(sophus)
