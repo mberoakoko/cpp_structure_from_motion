@@ -169,6 +169,34 @@ namespace visual_odometry::feature_extraction {
                 points_2.push_back(train);
             }
 
+            cv::Mat fundamental_mat = cv::findFundamentalMat(points_1, points_2, cv::FM_8POINT);
+            cv::Mat essential_mat = cv::findEssentialMat(
+                points_1,
+                points_2,
+                TUM_DATASET_DEFAULTS::FOCAL_LENGTH,
+                TUM_DATASET_DEFAULTS::PRINCIPLE_POINT
+            );
+
+            cv::Mat homography_mat = cv::findHomography(
+                points_1,
+                points_2,
+                cv::RANSAC,
+                3
+            );
+
+            cv::Mat R, t;
+            cv::recoverPose(
+                essential_mat,
+                points_1,
+                points_2,
+                R, t,
+                TUM_DATASET_DEFAULTS::FOCAL_LENGTH,
+                TUM_DATASET_DEFAULTS::PRINCIPLE_POINT
+            );
+            return PoseEstimations{
+                .R = R,
+                .t = t,
+            };
         }
 
     private:
