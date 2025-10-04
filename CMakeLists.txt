@@ -85,7 +85,7 @@ target_include_directories(cpp_structure_from_motion PUBLIC
 
 target_link_libraries(cpp_structure_from_motion
         PUBLIC sophus pango_core pango_display pango_geometry pango_glgeometry
-        PRIVATE Ceres::ceres {OpenCV_LIBS}
+        PRIVATE Ceres::ceres ${OpenCV_LIBS}
 )
 
 #target_include_directories(cpp_structure_from_motion PUBLIC ${CERES_INCLUDE_DIRS})

@@ -15,6 +15,12 @@ namespace functional {
     };
 }
 
+namespace to_be_deleted {
+    inline auto test_generation() -> void {
+
+    }
+}
+
 int main() {
     // motion::tests::test_initializing_sophus_objects();
     // motion::utils::draw_trajectories_open_gl_context();

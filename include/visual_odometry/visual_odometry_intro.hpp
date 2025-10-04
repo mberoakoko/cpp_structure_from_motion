@@ -8,6 +8,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/sfm/fundamental.hpp>
 #include <opencv2/features2d/features2d.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui.hpp>
 #include <utility>
 
@@ -101,10 +102,23 @@ namespace visual_odometry::feature_extraction {
             std::vector<cv::DMatch> matches_;
             matcher_->match(descriptor_1_, descriptor_2_, matches_);
             const auto [min_elem, max_elem ] = std::ranges::minmax(matches_, [](const cv::DMatch& a, cv::DMatch& b) {return a.distance < b.distance;});
-            return matches_
-                |   std::views::filter([min_elem, threshold](const cv::DMatch& match)
-                                {return match.distance <= std::max(2*min_elem.distance, threshold);})
-                | std::ranges::to<std::vector<cv::DMatch>>();
+            return std::ranges::to<std::vector<cv::DMatch>>(
+                    matches_
+                    |std::views::filter(
+                        [min_elem, threshold](const cv::DMatch& match) {
+                            return match.distance <= std::max(2*min_elem.distance, threshold);
+                        }
+                    )
+            );
+        }
+
+        auto get_keypoints_1() const -> std::vector<cv::KeyPoint> {
+            return keypoints_1_;
+        }
+
+
+        auto get_keypoints_2() const -> std::vector<cv::KeyPoint> {
+            return keypoints_2_;
         }
 
         auto display_extracted_features() const -> void {
@@ -133,7 +147,7 @@ namespace visual_odometry::feature_extraction {
 
     namespace TUM_DATASET_DEFAULTS {
         const cv::Mat CAMERA_INTRINSICS { (cv::Mat_<double>(3, 3) <<  520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1) };
-        const cv::Mat PRINCIPLE_POINT { };
+        const cv::Point2d PRINCIPLE_POINT {325.1, 249.7 };
         constexpr double FOCAL_LENGTH { 521.0 };
     }
 
@@ -146,8 +160,11 @@ namespace visual_odometry::feature_extraction {
             cv::Mat R;
             cv::Mat t;
         };
-        explicit PoseEstimator(const std::vector<cv::KeyPoint>& key_points_1, const std::vector<cv::KeyPoint>& key_points_2, const std::vector<cv::DMatch>& matches)
-            : keypoints_1_(keypoints_1_), keypoints_2_(key_points_2), matches_(matches) {
+        explicit PoseEstimator(
+            const std::vector<cv::KeyPoint>& key_points_1,
+            const std::vector<cv::KeyPoint>& key_points_2,
+            const std::vector<cv::DMatch>& matches)
+            : keypoints_1_(key_points_1), keypoints_2_(key_points_2), matches_(matches) {
 
         }
 
@@ -193,6 +210,8 @@ namespace visual_odometry::feature_extraction {
                 TUM_DATASET_DEFAULTS::FOCAL_LENGTH,
                 TUM_DATASET_DEFAULTS::PRINCIPLE_POINT
             );
+
+            std::cout << "Completed pose estimation " << std::endl;
             return PoseEstimations{
                 .R = R,
                 .t = t,
@@ -200,13 +219,24 @@ namespace visual_odometry::feature_extraction {
         }
 
     private:
-        PoseEstimations poseEstimations_;
+        // PoseEstimations poseEstimations_;
     };
 
     inline auto test_binary_feature_extractor() -> void {
         const auto [image_1, image_2] = temporary_data_access::load_images_from_disk();
         auto binary_extractor = BinaryFeatureExtractor(image_1, image_2);
-        binary_extractor.extract_features().display_match_results();
+        auto matches = binary_extractor
+            .extract_features()
+            .match_features();
+        // binary_extractor.extract_features().display_match_results();
+        PoseEstimator pose_estimator = PoseEstimator(
+            binary_extractor.get_keypoints_1(),
+            binary_extractor.get_keypoints_2(),
+            matches
+        );
+        auto pose_estimation = pose_estimator.perform_pose_estimation();
+        std::cout <<"R matrix " << pose_estimation.R << std::endl;
+        std::cout <<"t matrix " << pose_estimation.t << std::endl;
     }
 
 

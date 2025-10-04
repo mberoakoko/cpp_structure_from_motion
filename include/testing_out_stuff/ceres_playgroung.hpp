@@ -24,8 +24,9 @@ namespace motion::tests {
 
         // Set up the only cost function (also known as residual). This uses
         // auto-differentiation to obtain the derivative (jacobian).
+        auto cost_functior = CostFunctor();
         ceres::CostFunction* cost_function =
-            new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>();
+            new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(&cost_functior);
         problem.AddResidualBlock(cost_function, nullptr, &x);
 
         // Run the solver!
