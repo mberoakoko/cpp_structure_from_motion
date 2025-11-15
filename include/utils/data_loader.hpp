@@ -208,7 +208,11 @@ namespace motion::utils {
     namespace test_dataloader {
         inline auto test_getting_batches(std::uint16_t batch_size = 20) -> void {
             std::string sub_dir = "einstein_1_stereo_dataset/rgb2";
-            std::shared_ptr<dataloader::Dataset> dataset = std::make_shared<utils::dataset::ImagePathDataSet>(dataset::DEFAULT_RESOURCE_DIR, sub_dir);
+            std::shared_ptr<dataloader::Dataset> dataset = std::make_shared<utils::dataset::ImagePathDataSet>(
+                dataset::DEFAULT_RESOURCE_DIR,
+                sub_dir
+                );
+
             std::cout << "\n--- Iterating through DataLoader (Batch Size 3, no shuffle) ---" << std::endl;
             // for (dataloader::DataLoader<dataloader::ImageSample, dataloader::ImageBatch> data_loader{dataset, 3, false};
             //     const dataloader::ImageBatch& image_batch: data_loader) {
