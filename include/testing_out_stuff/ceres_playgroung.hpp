@@ -58,9 +58,9 @@ namespace motion::tests {
             double x_initail = 5;
             ceres::Problem problem;
 
-            ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<DistanceResidual, 1, 1>(
-                new DistanceResidual(observed_distance)
-            );
+            auto distance_residual = DistanceResidual(x_initail);
+
+            ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<DistanceResidual, 1, 1>(&distance_residual);
 
             problem.AddResidualBlock(cost_function, nullptr, &x_initail);
 
@@ -72,6 +72,7 @@ namespace motion::tests {
             ceres::Solve(options, &problem, &summary);
             std::cout << summary.BriefReport() << "\n";
             std::cout << "Final Value of X " << x_initail << "\n";
+            delete cost_function;
 
         }
 

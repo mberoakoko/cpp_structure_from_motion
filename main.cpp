@@ -24,8 +24,8 @@ namespace to_be_deleted {
 int main() {
     // motion::tests::test_initializing_sophus_objects();
     // motion::utils::draw_trajectories_open_gl_context();
-    // motion::tests::hello_world_ceres();
+    motion::tests::playground_ceres::solve_distance_residual(10);
     // motion::utils::test_dataloader::test_getting_batches(200);
-    visual_odometry::feature_extraction::test_binary_feature_extractor();
+    // visual_odometry::feature_extraction::test_binary_feature_extractor();
     return 0;
 }
