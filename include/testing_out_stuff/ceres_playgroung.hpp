@@ -76,6 +76,30 @@ namespace motion::tests {
 
         }
 
+        inline auto solve_distance_residual_with_loss_function(const double& measurement) ->  void {
+            double x_initail = 5;
+
+            auto distance_residual = DistanceResidual(measurement);
+
+            ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<DistanceResidual, 1, 1>(&distance_residual);
+            ceres::LossFunction* loss_function = new ceres::HuberLoss(1.0);
+
+            ceres::Problem problem;
+            problem.AddResidualBlock(cost_function, loss_function, &x_initail);
+
+            ceres::Solver::Options options;
+            options.minimizer_progress_to_stdout = true;
+            options.linear_solver_type = ceres::DENSE_QR;
+
+            ceres::Solver::Summary summary;
+            ceres::Solve(options, &problem, &summary);
+            std::cout << summary.BriefReport() << "\n";
+            std::cout << "Final Value of X " << x_initail << "\n";
+            // delete loss_function;
+            // delete cost_function;
+
+        }
+
     }
 }
 
