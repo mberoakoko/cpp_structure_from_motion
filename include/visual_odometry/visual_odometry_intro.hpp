@@ -31,6 +31,11 @@ namespace visual_odometry::feature_extraction {
             auto path_2 = std::filesystem::path(IMAGE_PATH_2);
             std::cout << (std::filesystem::exists(path_1) ? "true": "false") << std::endl;
             std::cout << (std::filesystem::exists(path_2) ? "true": "false") << std::endl;
+
+            for (const auto cond : {std::filesystem::exists(path_1), std::filesystem::exists(path_2)}) {
+                assert(cond);
+            }
+
             return {
                 .image_1 = cv::imread(IMAGE_PATH_1, cv::IMREAD_COLOR),
                 .image_2 = cv::imread(IMAGE_PATH_2, cv::IMREAD_COLOR)
