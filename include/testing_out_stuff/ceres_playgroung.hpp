@@ -54,11 +54,11 @@ namespace motion::tests {
             const double measurement_;
         };
 
-        auto solve_distance_residual(const double& observed_distance) -> void {
+        inline auto solve_distance_residual(const double& observed_distance) -> void {
             double x_initail = 5;
             ceres::Problem problem;
 
-            auto distance_residual = DistanceResidual(x_initail);
+            auto distance_residual = DistanceResidual(observed_distance);
 
             ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<DistanceResidual, 1, 1>(&distance_residual);
 
@@ -72,7 +72,7 @@ namespace motion::tests {
             ceres::Solve(options, &problem, &summary);
             std::cout << summary.BriefReport() << "\n";
             std::cout << "Final Value of X " << x_initail << "\n";
-            delete cost_function;
+            // delete cost_function;
 
         }
 
@@ -98,6 +98,55 @@ namespace motion::tests {
             // delete loss_function;
             // delete cost_function;
 
+        }
+
+
+        struct CalibrationResidual {
+
+            explicit CalibrationResidual(const double x, const double y) : x_(x), y_(y) {}
+
+            template<typename T>
+            auto operator()(const T* const k, const T* const b, T* residual) const -> bool {
+                residual[0] = (k[0] - b[0] * T(x_)) - y_;
+                return true;
+            }
+
+        private:
+            double x_, y_;
+        };
+
+
+        inline auto run_calibration_residual() -> void {
+
+            double  k = 0.0,
+                    b = 0.0;
+
+            const std::vector<std::pair<double, double>> observations = {
+                {1.0, 2.1}, {2.0, 3.9}, {3.0, 6.1}, {4.0, 8.2}
+            };
+
+            ceres::Problem problem;
+
+            for (auto&[x_val, y_val]: observations ) {
+                problem.AddResidualBlock(
+                    new ceres::AutoDiffCostFunction<CalibrationResidual, 1, 1, 1>(
+                        new CalibrationResidual(x_val, y_val)
+
+                        ),
+                        nullptr,
+                        &k, &b
+                        );
+            }
+
+            ceres::Solver::Options options;
+            options.minimizer_progress_to_stdout = true;
+            options.linear_solver_type = ceres::DENSE_QR;
+
+            ceres::Solver::Summary summary;
+            ceres::Solve(options, &problem, &summary);
+
+            std::cout << summary.BriefReport() << "\n";
+            std::cout << "Final k: " << k << " b: " << b << "\n";
         }
 
     }
