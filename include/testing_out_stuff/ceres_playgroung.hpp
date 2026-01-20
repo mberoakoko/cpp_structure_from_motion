@@ -149,6 +149,44 @@ namespace motion::tests {
             std::cout << "Final k: " << k << " b: " << b << "\n";
         }
 
+
+
+        struct NumericalDiffCostFunctor {
+            explicit NumericalDiffCostFunctor(const double x): x_(x){};
+
+            auto operator()(const double * const x, double * residual) const -> bool {
+                residual[0] = 10 - x[0];
+                return true;
+            }
+        private:
+            double x_;
+        };
+
+
+        inline auto run_numeric_diff() -> void {
+
+            double x { 0 };
+            double initial { x };
+
+            ceres::Problem problem;
+            auto cost_function = new  ceres::NumericDiffCostFunction<NumericalDiffCostFunctor, ceres::CENTRAL, 1, 1>(
+                new NumericalDiffCostFunctor(initial)
+                );
+
+            problem.AddResidualBlock(cost_function, nullptr, &x);
+
+            ceres::Solver::Options options;
+            options.minimizer_progress_to_stdout = true;
+            options.linear_solver_type = ceres::DENSE_QR;
+
+            ceres::Solver::Summary summary;
+            ceres::Solve(options, &problem, &summary);
+
+            std::cout << summary.BriefReport() << "\n";
+            std::cout << "Final x: " << x << "\n";
+
+        }
+
     }
 }
 
