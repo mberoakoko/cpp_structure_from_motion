@@ -181,10 +181,12 @@ namespace visual_odometry::feature_extraction {
                          keypoints_2_[match.trainIdx].pt
                          );
             });
-            std::vector<cv::Point2d> points_1;
-            std::vector<cv::Point2d> points_2;
-            points_1.reserve(matches_.size());
-            points_2.reserve(matches_.size());
+
+            std::vector<cv::Point2d> points_1{
+                matches_
+                | std::views::transform([&](const auto&m){ return keypoints_1_[m.queryIdx].pt;})
+                | std::ranges::to<std::vector<cv::Point2d>>()
+            };
 
             for (const auto& [query, train]: point_pairs) {
                 points_1.push_back(query);
