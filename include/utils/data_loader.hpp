@@ -73,13 +73,13 @@ namespace motion::utils {
             explicit DataLoader(std::shared_ptr<Dataset> dataset, std::size_t batch_size, bool shuffle)
             :   dataset_(std::move(dataset)),
                 batch_size_(batch_size),
-                shuffle_(shuffle),
                 curr_epoch_indexes_(
                     std::ranges::to<std::vector<std::size_t>>(
                         std::views::iota(0)
                         | std::views::take(dataset_->size())
                     )
                 ),
+                shuffle_(shuffle),
                 rng_(std::random_device{}()) {
                 std::ranges::shuffle(curr_epoch_indexes_, rng_);
             }

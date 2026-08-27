@@ -27,8 +27,8 @@ int main() {
     // motion::tests::playground_ceres::solve_distance_residual(10);
     // motion::tests::playground_ceres::solve_distance_residual_with_loss_function(10);
     // motion::tests::playground_ceres::run_calibration_residual();
-    motion::tests::playground_ceres::run_numeric_diff();
+    // motion::tests::playground_ceres::run_numeric_diff();
     // motion::utils::test_dataloader::test_getting_batches(200);
-    // visual_odometry::feature_extraction::test_binary_feature_extractor();
+    visual_odometry::feature_extraction::test_binary_feature_extractor();
     return 0;
 }

@@ -222,8 +222,8 @@ namespace visual_odometry::feature_extraction {
 
             std::cout << "Completed pose estimation " << std::endl;
             return PoseEstimations{
-                .R = R,
-                .t = t,
+                .R = std::move(R),
+                .t = std::move(t),
             };
         }
 

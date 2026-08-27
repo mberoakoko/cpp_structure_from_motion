@@ -85,11 +85,11 @@ namespace motion::utils {
             d_cam.Activate(s_cam);
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glLineWidth(2);
-            for (size_t i = 0; i < poses.size(); i++) {
-                Eigen::Vector3d Ow = poses[i].translation();
-                Eigen::Vector3d Xw = poses[i] * (0.01 * Eigen::Vector3d(1, 0, 0));
-                Eigen::Vector3d Yw = poses[i] * (0.01 * Eigen::Vector3d(0, 1, 0));
-                Eigen::Vector3d Zw = poses[i] * (0.01 * Eigen::Vector3d(0, 0, 1));
+            for (auto & pose : poses) {
+                Eigen::Vector3d Ow = pose.translation();
+                Eigen::Vector3d Xw = pose * (0.01 * Eigen::Vector3d(1, 0, 0));
+                Eigen::Vector3d Yw = pose * (0.01 * Eigen::Vector3d(0, 1, 0));
+                Eigen::Vector3d Zw = pose * (0.01 * Eigen::Vector3d(0, 0, 1));
                 glBegin(GL_LINES);
                 glColor3f(1.0, 0.0, 0.0);
                 glVertex3d(Ow[0], Ow[1], Ow[2]);
