@@ -188,10 +188,12 @@ namespace visual_odometry::feature_extraction {
                 | std::ranges::to<std::vector<cv::Point2d>>()
             };
 
-            for (const auto& [query, train]: point_pairs) {
-                points_1.push_back(query);
-                points_2.push_back(train);
-            }
+            std::vector<cv::Point2d> points_2{
+                matches_
+                | std::views::transform([&](const auto& m){ return keypoints_2_[m.trainIdx].pt; })
+                | std::ranges::to<std::vector<cv::Point2d>>()
+            };
+
 
             cv::Mat fundamental_mat = cv::findFundamentalMat(points_1, points_2, cv::FM_8POINT);
             cv::Mat essential_mat = cv::findEssentialMat(
