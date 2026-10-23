@@ -2,3 +2,5 @@
 /resources/image_data/einstein_1_stereo_dataset/rgb2/*.png
 /resources/image_data/einstein_1_stereo_dataset/
 /resources/image_data/einstein_1_stereo_dataset/rgb2/
+/cmake-build-debug-system/
+/_deps/

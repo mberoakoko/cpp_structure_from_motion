@@ -76,7 +76,10 @@ add_executable(cpp_structure_from_motion main.cpp
         include/utils/trajectory_utils.hpp
         include/testing_out_stuff/ceres_playgroung.hpp
         include/visual_odometry/visual_odometry_intro.hpp
-        include/utils/data_loader.hpp)
+        include/utils/data_loader.hpp
+        include/utils/sterio_vision_basics.hpp
+        include/utils/optical_flow.hpp
+        include/utils/optical_flow.hpp)
 
 
 target_include_directories(cpp_structure_from_motion PUBLIC
@@ -84,7 +87,7 @@ target_include_directories(cpp_structure_from_motion PUBLIC
 )
 
 target_link_libraries(cpp_structure_from_motion
-        PUBLIC sophus pango_core pango_display pango_geometry pango_glgeometry
+        PUBLIC sophus pango_core pango_display pango_geometry pango_glgeometry pango_plot
         PRIVATE Ceres::ceres ${OpenCV_LIBS}
 )
 

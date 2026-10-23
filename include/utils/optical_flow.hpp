@@ -5,6 +5,10 @@
 #ifndef CPP_STRUCTURE_FROM_MOTION_OPTICAL_FLOW_HPP
 #define CPP_STRUCTURE_FROM_MOTION_OPTICAL_FLOW_HPP
 
+#include <ranges>
+#include <opencv2/core.hpp>
+#include <pstl/glue_execution_defs.h>
+
 namespace motion::optical_flow {
 
     /**
